@@ -1,0 +1,1474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111a19">
+  <title>Weirdo Builder</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #e9e3d6;
+      --muted: #9e9d8e;
+      --panel: #1b2421;
+      --panel-raised: #222c28;
+      --line: #38433b;
+      --lime: #d3ef86;
+      --orange: #e5a56e;
+      --red: #ff9185;
+      --serif: Georgia, "Times New Roman", serif;
+      font-family: "Segoe UI", sans-serif;
+      background: #111a19;
+      color: var(--ink);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 82% 4%, rgb(101 117 67 / 15%), transparent 34rem),
+        radial-gradient(ellipse at 5% 68%, rgb(90 104 78 / 8%), transparent 29rem),
+        #111a19;
+    }
+
+    button, input, select { font: inherit; }
+    button, select { color: inherit; }
+    button { cursor: pointer; }
+
+    .shell { max-width: 1232px; margin: auto; padding: 38px 38px 64px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      display: grid;
+      width: 40px;
+      height: 40px;
+      place-items: center;
+      border: 1px solid #627047;
+      border-radius: 12px;
+      color: var(--lime);
+      font-family: var(--serif);
+      font-size: 24px;
+      transform: rotate(-5deg);
+    }
+    .brand-name { font-family: var(--serif); font-size: 19px; letter-spacing: .02em; }
+    .brand-kicker, .eyebrow {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .19em;
+      text-transform: uppercase;
+    }
+    .brand-kicker { margin-top: 3px; font-size: 9px; }
+    .local-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      color: #b8bdab;
+      font-size: 11px;
+    }
+    .local-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); }
+
+    .hero { padding: 70px 0 42px; }
+    .eyebrow { color: var(--lime); }
+    h1 {
+      margin: 11px 0 12px;
+      font-family: var(--serif);
+      font-size: clamp(38px, 7vw, 64px);
+      font-weight: 400;
+      letter-spacing: -.045em;
+      line-height: 1.02;
+    }
+    .hero-copy { max-width: 490px; margin: 0; color: #b4b4a7; font-size: 14px; line-height: 1.7; }
+
+    .builder { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 18px; align-items: start; }
+    .panel {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgb(27 36 33 / 92%);
+    }
+    .panel-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    .section-title { margin: 0; font-family: var(--serif); font-size: 20px; font-weight: 400; }
+    .roster-title { overflow-wrap: anywhere; }
+    .step {
+      color: #818779;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .form-content { padding: 22px; }
+    .field-label {
+      display: block;
+      margin-bottom: 9px;
+      color: #c8c8b9;
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .name-input, .budget-select {
+      width: 100%;
+      min-height: 46px;
+      padding: 0 13px;
+      border: 1px solid #485249;
+      border-radius: 8px;
+      outline: none;
+      background: #141d1b;
+      color: var(--ink);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .name-input:focus, .budget-select:focus {
+      border-color: var(--lime);
+      box-shadow: 0 0 0 3px rgb(211 239 134 / 12%);
+    }
+    .name-input::placeholder { color: #73796e; }
+    .class-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .class-card {
+      position: relative;
+      min-height: 76px;
+      padding: 10px;
+      border: 1px solid #414a40;
+      border-radius: 10px;
+      background: #19221f;
+      text-align: left;
+      transition: border-color .15s, background .15s, transform .15s;
+    }
+    .class-card:hover { border-color: #78845c; transform: translateY(-1px); }
+    .class-card[aria-pressed="true"] { border-color: var(--lime); background: #252e25; }
+    .class-card:disabled { cursor: not-allowed; opacity: .46; transform: none; }
+    .class-card[aria-pressed="true"]::after {
+      position: absolute;
+      top: 11px;
+      right: 12px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--lime);
+      content: "";
+    }
+    .class-name { display: block; margin-bottom: 5px; font-family: var(--serif); font-size: 16px; }
+    .class-cost { display: block; margin-bottom: 5px; color: var(--lime); font-size: 10px; }
+    .class-description { display: block; color: #a0a397; font-size: 9px; line-height: 1.4; }
+    .divider { height: 1px; margin: 21px 0; background: var(--line); }
+    .subheading { margin: 0 0 4px; font-size: 13px; font-weight: 650; }
+    .subcopy { margin: 0 0 14px; color: var(--muted); font-size: 11px; }
+    .stat-row {
+      display: grid;
+      grid-template-columns: 95px minmax(80px, 1fr);
+      align-items: center;
+      gap: 11px;
+      margin: 13px 0;
+    }
+    .stat-name { color: #d2d1c5; font-size: 12px; }
+    .stat-select, .role-select, .weapon-select {
+      width: 100%;
+      min-height: 36px;
+      padding: 0 9px;
+      border: 1px solid #485249;
+      border-radius: 7px;
+      outline: none;
+      background: #141d1b;
+      color: var(--ink);
+      font-size: 11px;
+    }
+    .stat-select:focus, .role-select:focus, .weapon-select:focus { border-color: var(--lime); }
+    .role-row, .weapon-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 10px; }
+    .role-control { flex: 1; }
+    .trait-control { min-width: 180px; }
+    .role-help { margin: 9px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .trait-help { margin: 7px 0 0; color: #a4a89a; font-size: 10px; line-height: 1.5; }
+    .weapon-picker { display: flex; flex-direction: column; gap: 12px; }
+    .weapon-row { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+    .weapon-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .weapon-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 8px;
+      border: 1px solid #414a40;
+      border-radius: 6px;
+      background: #19221f;
+      color: #d0d0c3;
+      font-size: 10px;
+    }
+    .weapon-chip button { padding: 0; border: 0; background: transparent; color: #a9ae9d; }
+    .weapon-chip button:hover { color: var(--red); }
+    .inline-button { min-height: 36px; padding: 0 12px; border: 1px solid #566047; border-radius: 7px; background: #252e25; color: var(--lime); font-size: 11px; }
+    .inline-button:hover { background: #313c2d; }
+    .inline-button:disabled { cursor: not-allowed; opacity: .5; }
+    .cost-number { color: var(--lime); font-family: var(--serif); font-size: 22px; }
+    .cost-number.over { color: var(--red); }
+    .cost-number.limit { color: var(--orange); }
+    .roster-total-note {
+      padding: 0 21px 12px;
+      color: #a4a89a;
+      font-size: 10px;
+      line-height: 1.5;
+    }
+    .cost-preview {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 20px 0 13px;
+      padding: 13px 14px;
+      border: 1px solid #414a40;
+      border-radius: 9px;
+      background: #161f1c;
+    }
+    .cost-label { color: #b5b7a9; font-size: 12px; }
+    .cost-number { color: var(--lime); font-family: var(--serif); font-size: 22px; }
+    .cost-number.over { color: var(--red); }
+    .error-message {
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border: 1px solid rgb(255 145 133 / 35%);
+      border-radius: 8px;
+      background: rgb(112 47 42 / 18%);
+      color: #ffb0a7;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .error-message[hidden] { display: none; }
+    .add-button {
+      display: flex;
+      width: 100%;
+      min-height: 47px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--lime);
+      color: #1d271b;
+      font-size: 13px;
+      font-weight: 750;
+      transition: background .15s, transform .15s;
+    }
+    .add-button:hover { background: #e1f7aa; transform: translateY(-1px); }
+    .add-button:disabled { cursor: wait; opacity: .7; transform: none; }
+
+    .roster-panel { min-height: 270px; }
+    .budget-control { display: flex; align-items: center; gap: 9px; }
+    .budget-control .field-label { margin: 0; color: #a8ad9e; font-size: 10px; }
+    .budget-select { width: 105px; min-height: 35px; padding: 0 9px; font-size: 11px; }
+    .roster-tools {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 14px 21px 0;
+    }
+    .warband-name-input {
+      min-width: 0;
+      min-height: 36px;
+      flex: 1;
+      padding: 0 10px;
+      border: 1px solid #485249;
+      border-radius: 7px;
+      outline: none;
+      background: #141d1b;
+      color: var(--ink);
+      font-size: 11px;
+    }
+    .warband-name-input:focus { border-color: var(--lime); }
+    .tool-button {
+      min-height: 36px;
+      padding: 0 11px;
+      border: 1px solid #566047;
+      border-radius: 7px;
+      background: #252e25;
+      color: var(--lime);
+      font-size: 11px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+    .tool-button:hover { background: #313c2d; }
+    .tool-button:disabled { cursor: wait; opacity: .7; }
+    .save-name-button { color: #d3d4c8; }
+    .save-warband-button { background: var(--lime); color: #1d271b; }
+    .saved-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; }
+    .saved-heading .hero-copy { margin-top: 10px; }
+    .saved-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-top: 26px; }
+    .saved-card { padding: 17px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+    .saved-card h2 { margin: 0 0 8px; font-family: var(--serif); font-size: 19px; font-weight: 400; overflow-wrap: anywhere; }
+    .saved-meta { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .saved-card-actions { display: flex; gap: 9px; margin-top: 16px; }
+    .delete-saved-button { border-color: #70443e; color: #ffaaa0; }
+    .saved-empty { grid-column: 1 / -1; padding: 30px 16px; border: 1px dashed #465047; border-radius: 12px; color: var(--muted); text-align: center; line-height: 1.6; }
+    .saved-message { margin-top: 18px; color: #ffb0a7; font-size: 12px; }
+    .save-status { margin: 8px 21px 0; color: var(--lime); font-size: 11px; }
+    .roster-summary {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 20px 21px 11px;
+    }
+    .total { font-family: var(--serif); font-size: 28px; }
+    .total small { color: var(--muted); font-family: "Segoe UI", sans-serif; font-size: 12px; }
+    .remaining { color: var(--lime); font-size: 11px; }
+    .remaining.over { color: var(--red); }
+    .progress-track { height: 4px; margin: 0 21px 16px; overflow: hidden; border-radius: 4px; background: #39433b; }
+    .progress-fill { width: 0; height: 100%; border-radius: inherit; background: var(--lime); transition: width .25s; }
+    .roster-list { padding: 0 12px 12px; }
+    .empty-roster {
+      margin: 0;
+      padding: 28px 14px 36px;
+      color: #9b9e91;
+      font-family: var(--serif);
+      font-size: 15px;
+      line-height: 1.65;
+      text-align: center;
+    }
+    .empty-mark { display: block; margin-bottom: 9px; color: #77845d; font-size: 21px; }
+    .character-card {
+      margin: 7px 0;
+      padding: 9px;
+      border: 1px solid #36413a;
+      border-radius: 9px;
+      background: #202a26;
+      animation: arrive .22s ease-out;
+    }
+    @keyframes arrive { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .character-layout { display: grid; grid-template-columns: 68px minmax(0, 1fr); align-items: center; gap: 12px; }
+    .character-photo {
+      display: grid;
+      width: 68px;
+      height: 68px;
+      overflow: hidden;
+      place-items: center;
+      border-radius: 8px;
+      background: linear-gradient(145deg, #303d31, #18221f);
+      color: #b6c583;
+      font-family: var(--serif);
+      font-size: 24px;
+    }
+    .character-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .character-photo img.default-portrait { object-fit: fill; }
+    .character-content { min-width: 0; }
+    .character-top { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+    .character-name { margin: 0 0 4px; font-family: var(--serif); font-size: 16px; font-weight: 400; }
+    .character-class { color: #a6a99b; font-size: 10px; }
+    .character-points { flex-shrink: 0; color: var(--lime); font-size: 11px; }
+    .character-stats { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .stat-chip { padding: 4px 7px; border: 1px solid #404b41; border-radius: 5px; color: #bfc2b3; font-size: 9px; }
+    .character-actions { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+    .remove-button, .photo-button {
+      margin-top: 11px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #b6c583;
+      font-size: 10px;
+    }
+    .remove-button { margin-top: 0; color: #a4a89a; }
+    .photo-button { display: inline-block; margin-top: 0; cursor: pointer; }
+    .photo-button:hover { color: var(--lime); }
+    .remove-button:hover { color: var(--red); }
+    .photo-input { display: none; }
+    .rules-note { margin: 3px 4px 0; padding: 12px 9px 5px; border-top: 1px solid var(--line); color: #8d9185; font-size: 10px; line-height: 1.6; }
+    .rules-note strong { color: #c2c2b4; font-weight: 600; }
+    .footer { margin-top: 26px; color: #797f74; font-size: 10px; text-align: center; }
+
+    @media (max-width: 850px) {
+      .shell { padding: 28px 22px 50px; }
+      .builder { grid-template-columns: 1fr; }
+      .roster-panel { min-height: 200px; }
+      .hero { padding-top: 55px; }
+    }
+    @media (max-width: 520px) {
+      .shell { padding: 20px 15px 40px; }
+      .hero { padding: 48px 0 30px; }
+      .class-grid { grid-template-columns: 1fr; }
+      .class-card { min-height: 0; padding: 12px 13px; }
+      .class-cost { display: inline; margin-left: 8px; }
+      .class-name { display: inline; }
+      .class-description { margin-top: 6px; }
+      .panel-heading { padding: 17px 16px; }
+      .form-content { padding: 18px 16px; }
+      .stat-row { grid-template-columns: 76px minmax(45px, 1fr) 26px; gap: 8px; }
+      .budget-control { align-items: end; flex-direction: column; gap: 4px; }
+      .local-badge { padding: 7px 9px; font-size: 10px; }
+      .roster-tools { flex-wrap: wrap; padding-right: 16px; padding-left: 16px; }
+      .warband-name-input { flex-basis: 100%; }
+    }
+
+    @media print {
+      @page { margin: 16mm; }
+      :root { color-scheme: light; background: #fff; color: #111; }
+      body { min-width: 0; min-height: 0; background: #fff; color: #111; }
+      .shell { max-width: none; padding: 0; }
+      .topbar, .hero, .create-panel, .budget-control, .roster-tools, .save-status, #saved-view,
+      .progress-track, .remove-button, .photo-button, .footer { display: none !important; }
+      .builder { display: block; }
+      .panel {
+        overflow: visible;
+        border: 0;
+        border-radius: 0;
+        background: #fff;
+        color: #111;
+      }
+      .panel-heading { padding: 0 0 12px; border-bottom: 2px solid #222; }
+      .section-title { color: #111; font-size: 25px; }
+      .step { color: #444; }
+      .roster-summary { padding: 16px 0 10px; }
+      .total, .total small, .remaining { color: #111; }
+      .roster-list { padding: 0; }
+      .empty-roster { padding: 30px 0; color: #444; }
+      .empty-mark { display: none; }
+      .character-card {
+        break-inside: avoid;
+        margin: 9px 0;
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        background: #fff;
+        color: #111;
+        animation: none;
+      }
+      .character-photo { background: #eee; color: #222; print-color-adjust: exact; }
+      .character-photo img { print-color-adjust: exact; }
+      .character-actions { display: none; }
+      .character-name, .character-class, .character-points,
+      .stat-chip, .rules-note, .rules-note strong { color: #111; }
+      .stat-chip { border-color: #aaa; }
+      .rules-note { margin-top: 16px; padding: 12px 0 0; border-color: #999; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">✳</div>
+        <div>
+          <div class="brand-name">Weirdo Builder</div>
+          <div class="brand-kicker">A skirmish roster builder</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div class="local-badge"><span class="local-dot" aria-hidden="true"></span>Saved in this browser</div>
+        <button class="tool-button" id="saved-view-button" type="button" disabled>Saved warbands</button>
+      </div>
+    </header>
+
+    <div id="builder-view">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="eyebrow">Make your mark</div>
+      <h1 id="page-title">Forge a warband.</h1>
+      <p class="hero-copy">Choose your fighters, tune their strengths, and keep an eye on the tally. Every point has a purpose out there.</p>
+    </section>
+
+    <div class="builder">
+      <section class="panel create-panel" aria-labelledby="create-title">
+        <div class="panel-heading">
+          <h2 class="section-title" id="create-title">Create a fighter</h2>
+          <span class="step">01 / Recruit</span>
+        </div>
+        <form class="form-content" id="character-form">
+          <label class="field-label" for="character-name">Character name</label>
+          <input class="name-input" id="character-name" name="name" maxlength="40" placeholder="Give them a name..." autocomplete="off" required>
+
+          <div class="divider"></div>
+          <div class="role-row">
+            <label class="role-control">
+              <span class="field-label">Model role</span>
+              <select class="role-select" id="role-select">
+                <option value="Leader">Leader</option>
+                <option value="Troop">Troop</option>
+                <option value="Powerful">Powerful / large model</option>
+              </select>
+            </label>
+            <label class="role-control trait-control" id="leader-trait-control">
+              <span class="field-label">Leader trait (optional)</span>
+              <select class="role-select" id="leader-trait-select"></select>
+              <span class="trait-help" id="leader-trait-help"></span>
+            </label>
+          </div>
+          <p class="role-help" id="role-help"></p>
+
+          <div class="divider"></div>
+          <div class="field-label" id="class-label">Choose up to two classes for leaders and Powerful models; troops choose one.</div>
+          <div class="class-grid" id="class-grid" role="group" aria-labelledby="class-label"></div>
+
+          <div class="divider"></div>
+          <h3 class="subheading">Attributes</h3>
+          <p class="subcopy">Choose a rulebook attribute level; its points are added to the model. 2d10 Defense needs a shield or qualifying class; 2d10 Might needs a two-handed weapon or qualifying class.</p>
+          <div id="stat-controls"></div>
+
+          <div class="divider"></div>
+          <h3 class="subheading">Weapons</h3>
+          <p class="subcopy">Only weapon groups covered by your selected classes are available.</p>
+          <div class="weapon-picker">
+            <div class="weapon-row">
+              <select class="weapon-select" id="weapon-select" aria-label="Choose a weapon"></select>
+              <button class="inline-button" id="add-weapon-button" type="button">Add weapon</button>
+            </div>
+            <div class="weapon-chips" id="weapon-chips"></div>
+          </div>
+
+          <div class="cost-preview" aria-live="polite">
+            <span class="cost-label">Model cost / role limit</span>
+            <strong class="cost-number" id="cost-preview">7 / 25 pts</strong>
+          </div>
+          <p class="error-message" id="error-message" role="alert" hidden></p>
+          <button class="add-button" id="add-button" type="submit"><span aria-hidden="true">＋</span> Add fighter to warband</button>
+        </form>
+      </section>
+
+      <aside class="panel roster-panel" aria-labelledby="roster-title">
+        <div class="panel-heading">
+          <h2 class="section-title roster-title" id="roster-title">Untitled Warband</h2>
+          <label class="budget-control" for="budget-select">
+            <span class="field-label">Limit</span>
+            <select class="budget-select" id="budget-select" aria-label="Warband points limit">
+              <option value="100" selected>100 points</option>
+              <option value="75">75 points</option>
+              <option value="125">125 points</option>
+            </select>
+          </label>
+        </div>
+        <form class="roster-tools screen-only" id="warband-name-form">
+          <label for="warband-name-input" hidden>Warband name</label>
+          <input class="warband-name-input" id="warband-name-input" name="warband-name" maxlength="60" aria-label="Warband name" placeholder="Name your warband" autocomplete="off">
+          <button class="tool-button save-name-button" id="save-name-button" type="submit">Save name</button>
+          <button class="tool-button save-warband-button" id="save-warband-button" type="button">Save warband</button>
+        </form>
+        <p class="save-status" id="save-status" role="status" hidden></p>
+        <div class="roster-summary">
+          <div class="total"><span id="points-used">0</span><small> / <span id="budget-total">100</span> pts</small></div>
+          <div class="remaining" id="points-remaining">100 available</div>
+        </div>
+        <p class="roster-total-note">Each model: 25 points maximum. One optional Powerful (large) model: 30 points maximum; it cannot be the leader.</p>
+        <div class="progress-track" role="progressbar" id="budget-progress" aria-label="Warband points used" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="roster-list" id="roster-list" aria-live="polite"></div>
+        <p class="rules-note"><strong>Roster rules:</strong> One leader is required; leaders may choose two classes and one free leader trait. Troops take one class. The optional single Powerful model may take two classes, costs up to 30 points, and cannot be the leader. Limited classes are capped per warband. Point options and weapon groups follow the supplied zine.</p>
+      </aside>
+    </div>
+    </div>
+    <section id="saved-view" hidden aria-labelledby="saved-title">
+      <div class="hero saved-heading">
+        <div>
+          <div class="eyebrow">Your collection</div>
+          <h1 id="saved-title">Saved warbands.</h1>
+          <p class="hero-copy">These rosters are stored only in this browser. Load one to review or continue editing it.</p>
+        </div>
+        <button class="tool-button" id="builder-view-button" type="button">Back to builder</button>
+      </div>
+      <p class="saved-message" id="saved-message" role="status" hidden></p>
+      <div class="saved-list" id="saved-list"></div>
+    </section>
+    <footer class="footer">An original, local-first roster tool. Warbands and photos stay in this browser.</footer>
+  </main>
+
+  <script>
+    "use strict";
+
+    const statNames = { speed: "Speed", defense: "Defense", might: "Might", will: "Willpower" };
+    const classGrid = document.querySelector("#class-grid");
+    const statControls = document.querySelector("#stat-controls");
+    const form = document.querySelector("#character-form");
+    const errorMessage = document.querySelector("#error-message");
+    const submitButton = document.querySelector("#add-button");
+    const budgetSelect = document.querySelector("#budget-select");
+    const warbandNameForm = document.querySelector("#warband-name-form");
+    const warbandNameInput = document.querySelector("#warband-name-input");
+    const saveNameButton = document.querySelector("#save-name-button");
+    const saveWarbandButton = document.querySelector("#save-warband-button");
+    const savedViewButton = document.querySelector("#saved-view-button");
+    const builderViewButton = document.querySelector("#builder-view-button");
+    const builderView = document.querySelector("#builder-view");
+    const savedView = document.querySelector("#saved-view");
+    const savedList = document.querySelector("#saved-list");
+    const savedMessage = document.querySelector("#saved-message");
+    const saveStatus = document.querySelector("#save-status");
+    const roleSelect = document.querySelector("#role-select");
+    const leaderTraitSelect = document.querySelector("#leader-trait-select");
+    const leaderTraitControl = document.querySelector("#leader-trait-control");
+    const weaponSelect = document.querySelector("#weapon-select");
+    const weaponChips = document.querySelector("#weapon-chips");
+    const addWeaponButton = document.querySelector("#add-weapon-button");
+    let appState;
+    let gameRules;
+    let savedWarbands = [];
+    let activeSavedId = null;
+    let savedStorageReady = true;
+    let selectedClasses = ["Fighter"];
+    let selectedWeapons = [];
+
+    async function request(url, options = {}) {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Something went wrong.");
+      return data;
+    }
+
+    function updateDerivedState() {
+      appState.points_used = appState.characters.reduce((total, character) => total + character.points, 0);
+      appState.remaining = appState.budget - appState.points_used;
+    }
+
+    function showSavedMessage(message) {
+      savedMessage.textContent = message;
+      savedMessage.hidden = !message;
+    }
+
+    function refreshSaveButton() {
+      saveWarbandButton.textContent = activeSavedId ? "Update saved warband" : "Save warband";
+    }
+
+    function loadSavedWarbands() {
+      try {
+        const stored = localStorage.getItem("warband-foundry:saved-warbands:v1");
+        const parsed = stored ? JSON.parse(stored) : [];
+        if (!Array.isArray(parsed) || parsed.some((warband) =>
+          !warband || typeof warband.id !== "string" || typeof warband.name !== "string" ||
+          !Number.isInteger(warband.budget) || !Array.isArray(warband.characters) ||
+          warband.characters.some((character) =>
+            !character || typeof character.name !== "string" || !Number.isInteger(character.points) ||
+            !Array.isArray(character.classes) || !character.stats || !Array.isArray(character.weapons)
+          )
+        )) {
+          throw new Error("Saved warband data has an unexpected format.");
+        }
+        savedWarbands = parsed;
+        savedStorageReady = true;
+      } catch (error) {
+        savedWarbands = [];
+        savedStorageReady = false;
+        showSavedMessage(`Could not read saved warbands from this browser: ${error.message}`);
+      }
+    }
+
+    function writeSavedWarbands() {
+      try {
+        localStorage.setItem("warband-foundry:saved-warbands:v1", JSON.stringify(savedWarbands));
+        savedStorageReady = true;
+        return true;
+      } catch (error) {
+        showError(`Could not save this warband in browser storage: ${error.message}`);
+        return false;
+      }
+    }
+
+    function showError(message) {
+      if (!savedView.hidden) {
+        showSavedMessage(message);
+      } else {
+        errorMessage.textContent = message;
+        errorMessage.hidden = false;
+      }
+    }
+
+    function clearError() {
+      errorMessage.textContent = "";
+      errorMessage.hidden = true;
+    }
+
+    function currentRole() {
+      return roleSelect.value;
+    }
+
+    function classCount(className) {
+      return appState.characters.filter((character) => character.classes.includes(className)).length;
+    }
+
+    function renderClasses() {
+      classGrid.replaceChildren();
+      for (const [name, profile] of Object.entries(appState.classes)) {
+        const card = document.createElement("button");
+        card.className = "class-card";
+        card.type = "button";
+        const selected = selectedClasses.includes(name);
+        const limitReached = profile.limit !== null && classCount(name) >= profile.limit;
+        const tooManySelected = !selected && selectedClasses.length >= (currentRole() === "Troop" ? 1 : 2);
+        card.setAttribute("aria-pressed", String(selected));
+        card.disabled = !selected && (limitReached || tooManySelected);
+        const title = document.createElement("span");
+        title.className = "class-name";
+        title.textContent = name;
+        const cost = document.createElement("span");
+        cost.className = "class-cost";
+        cost.textContent = `${profile.points} pt${profile.points === 1 ? "" : "s"}${profile.limit === null ? "" : ` · limit ${profile.limit}`}`;
+        const description = document.createElement("span");
+        description.className = "class-description";
+        description.textContent = `${profile.summary} Weapons: ${profile.proficiencies.join(", ")}`;
+        card.append(title, cost, description);
+        card.addEventListener("click", () => {
+          selectedClasses = selected
+            ? selectedClasses.filter((item) => item !== name)
+            : [...selectedClasses, name];
+          const proficiencies = new Set(
+            selectedClasses.flatMap((className) => appState.classes[className].proficiencies),
+          );
+          const removedWeapons = selectedWeapons.filter(
+            (weaponName) => !proficiencies.has(appState.weapons.find((item) => item.name === weaponName).category),
+          );
+          selectedWeapons = selectedWeapons.filter((weaponName) => !removedWeapons.includes(weaponName));
+          if (removedWeapons.length) {
+            showError(`Removed weapons not covered by the new class selection: ${removedWeapons.join(", ")}.`);
+          } else {
+            clearError();
+          }
+          renderClasses();
+          renderWeapons();
+          updateCostPreview();
+        });
+        classGrid.append(card);
+      }
+    }
+
+    function renderStats() {
+      statControls.replaceChildren();
+      for (const [key, label] of Object.entries(statNames)) {
+        const row = document.createElement("label");
+        row.className = "stat-row";
+        const title = document.createElement("span");
+        title.className = "stat-name";
+        title.textContent = label;
+        const input = document.createElement("select");
+        input.className = "stat-select";
+        const options = Object.keys(appState.attribute_costs[key]);
+        for (const value of options) {
+          const option = document.createElement("option");
+          option.value = value;
+          const cost = appState.attribute_costs[key][value];
+          option.textContent = `${value} · ${cost} pt${cost === 1 ? "" : "s"}`;
+          if (value === (key === "speed" ? "2" : "2d6")) option.selected = true;
+          input.append(option);
+        }
+        input.dataset.stat = key;
+        input.setAttribute("aria-label", label);
+        input.addEventListener("change", updateCostPreview);
+        row.append(title, input);
+        statControls.append(row);
+      }
+    }
+
+    function renderLeaderTraits() {
+      leaderTraitSelect.replaceChildren();
+      const none = document.createElement("option");
+      none.value = "";
+      none.textContent = "None";
+      leaderTraitSelect.append(none);
+      for (const trait of appState.leader_traits) {
+        const option = document.createElement("option");
+        option.value = trait;
+        option.textContent = trait;
+        leaderTraitSelect.append(option);
+      }
+      updateRoleDetails();
+    }
+
+    function updateRoleDetails() {
+      const role = currentRole();
+      leaderTraitControl.hidden = role !== "Leader";
+      document.querySelector("#leader-trait-help").textContent =
+        role === "Leader" && leaderTraitSelect.value === "Hero/Villain"
+          ? "Hero/Villain doubles this model's total cost."
+          : role === "Leader"
+            ? "Leader traits are free."
+            : "";
+      document.querySelector("#role-help").textContent = role === "Powerful"
+        ? "Optional large-model rule: one per warband, up to 30 points, cannot be the leader, may take two classes, and ignores the first Out of Action result."
+        : role === "Leader"
+          ? "One leader per warband. May take up to two classes and one optional leader trait."
+          : "Troops may take one class and cost no more than 25 points each.";
+    }
+
+    function renderWeapons() {
+      const proficiencies = new Set(
+        selectedClasses.flatMap((name) => appState.classes[name].proficiencies),
+      );
+      const available = appState.weapons.filter((weapon) => proficiencies.has(weapon.category));
+      weaponSelect.replaceChildren();
+      if (!available.length) {
+        const empty = document.createElement("option");
+        empty.value = "";
+        empty.textContent = "Select a class to see weapons";
+        weaponSelect.append(empty);
+        addWeaponButton.disabled = true;
+      } else {
+        const categories = [...new Set(available.map((weapon) => weapon.category))];
+        for (const category of categories) {
+          const group = document.createElement("optgroup");
+          group.label = category;
+          for (const weapon of available.filter((item) => item.category === category)) {
+            const option = document.createElement("option");
+            option.value = weapon.name;
+            option.textContent = `${weapon.name} · ${weapon.points} pt${weapon.points === 1 ? "" : "s"}`;
+            group.append(option);
+          }
+          weaponSelect.append(group);
+        }
+        addWeaponButton.disabled = false;
+      }
+
+      weaponChips.replaceChildren();
+      selectedWeapons.forEach((name, index) => {
+        const weapon = appState.weapons.find((item) => item.name === name);
+        const chip = document.createElement("span");
+        chip.className = "weapon-chip";
+        chip.append(`${name} · ${weapon.points} pt${weapon.points === 1 ? "" : "s"}`);
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "×";
+        remove.setAttribute("aria-label", `Remove ${name}`);
+        remove.addEventListener("click", () => {
+          selectedWeapons.splice(index, 1);
+          renderWeapons();
+          updateCostPreview();
+        });
+        chip.append(remove);
+        weaponChips.append(chip);
+      });
+    }
+
+    function candidatePoints() {
+      let total = selectedClasses.reduce((sum, name) => sum + appState.classes[name].points, 0);
+      for (const input of statControls.querySelectorAll("select[data-stat]")) {
+        total += appState.attribute_costs[input.dataset.stat][input.value];
+      }
+      total += selectedWeapons.reduce(
+        (sum, name) => sum + appState.weapons.find((weapon) => weapon.name === name).points,
+        0,
+      );
+      if (currentRole() === "Leader" && leaderTraitSelect.value === "Hero/Villain") total *= 2;
+      return { points: total, limit: currentRole() === "Powerful" ? 30 : 25 };
+    }
+
+    function updateCostPreview() {
+      const { points, limit } = candidatePoints();
+      const preview = document.querySelector("#cost-preview");
+      preview.textContent = `${points} / ${limit} pts`;
+      preview.classList.toggle("over", points > limit);
+      preview.classList.toggle("limit", points <= limit && points > appState.remaining);
+      submitButton.disabled = selectedClasses.length === 0;
+    }
+
+    function validateCharacter(payload) {
+      if (!payload.name.trim()) throw new Error("Give your character a name.");
+      if (payload.name.trim().length > 40) throw new Error("Character names must be 40 characters or fewer.");
+      if (!["Leader", "Troop", "Powerful"].includes(payload.role)) throw new Error("Choose Leader, Troop, or Powerful model.");
+      if (!payload.classes.length || new Set(payload.classes).size !== payload.classes.length ||
+          payload.classes.some((name) => !gameRules.classes[name])) {
+        throw new Error("Choose one or two distinct available classes.");
+      }
+      const classLimit = payload.role === "Troop" ? 1 : 2;
+      if (payload.classes.length > classLimit) throw new Error(`${payload.role} models may have at most ${classLimit} class.`);
+
+      for (const [attribute, choices] of Object.entries(gameRules.attribute_costs)) {
+        if (!(String(payload.stats[attribute]) in choices)) throw new Error(`Choose a valid ${statNames[attribute]} value.`);
+      }
+      const weaponByName = new Map(gameRules.weapons.map((weapon) => [weapon.name, weapon]));
+      if (payload.weapons.some((name) => !weaponByName.has(name))) throw new Error("Choose valid weapons.");
+
+      const proficiencies = new Set(payload.classes.flatMap((name) => gameRules.classes[name].proficiencies));
+      const incompatible = payload.weapons.filter((name) => !proficiencies.has(weaponByName.get(name).category));
+      if (incompatible.length) throw new Error(`Your selected classes are not proficient with ${incompatible.join(", ")}.`);
+
+      const unrestricted = ["Beast", "Magical Beast", "Monster"].some((name) => payload.classes.includes(name));
+      const hasShield = payload.weapons.some((name) => weaponByName.get(name).category === "Shields");
+      if (payload.stats.defense === "2d10" && !hasShield && !unrestricted && !payload.classes.includes("Knight")) {
+        throw new Error("2d10 Defense requires a shield or a class that permits it.");
+      }
+      if (payload.stats.might === "2d10" && !unrestricted &&
+          !payload.weapons.some((name) => gameRules.two_handed_weapons.includes(name))) {
+        throw new Error("2d10 Might requires a two-handed weapon or a class that permits it.");
+      }
+
+      if (payload.role === "Leader") {
+        if (payload.leader_trait && !gameRules.leader_traits.includes(payload.leader_trait)) {
+          throw new Error("Choose a valid leader trait.");
+        }
+        if (payload.leader_trait === "Enchanted Weapon" && !payload.weapons.length) {
+          throw new Error("Enchanted Weapon requires the leader to have a weapon.");
+        }
+        if (payload.leader_trait === "Enchanted Shield" && !hasShield) {
+          throw new Error("Enchanted Shield requires the leader to have a shield.");
+        }
+      } else if (payload.leader_trait) {
+        throw new Error("Only the leader may have a leader trait.");
+      }
+
+      let points = payload.classes.reduce((total, name) => total + gameRules.classes[name].points, 0);
+      points += Object.entries(payload.stats).reduce(
+        (total, [attribute, value]) => total + gameRules.attribute_costs[attribute][String(value)], 0,
+      );
+      points += payload.weapons.reduce((total, name) => total + weaponByName.get(name).points, 0);
+      if (payload.role === "Leader" && payload.leader_trait === "Hero/Villain") points *= 2;
+      const modelLimit = payload.role === "Powerful" ? gameRules.max_powerful_points : gameRules.max_model_points;
+      if (points > modelLimit) {
+        throw new Error(`${payload.role} model costs ${points} points; the limit is ${modelLimit}. Adjust its classes, attributes, weapons, or leader trait.`);
+      }
+
+      if (payload.role === "Leader" && appState.characters.some((character) => character.role === "Leader")) {
+        throw new Error("A warband can only have one leader.");
+      }
+      if (payload.role !== "Leader" && !appState.characters.some((character) => character.role === "Leader")) {
+        throw new Error("Create the warband leader first.");
+      }
+      if (payload.role === "Powerful" && appState.characters.some((character) => character.role === "Powerful")) {
+        throw new Error("A warband can only have one Powerful (large) model.");
+      }
+      for (const className of payload.classes) {
+        const limit = gameRules.classes[className].limit;
+        if (limit !== null && appState.characters.filter((character) => character.classes.includes(className)).length >= limit) {
+          throw new Error(`${className} is limited to ${limit} ${limit === 1 ? "model" : "models"} per warband.`);
+        }
+      }
+      if (points > appState.remaining) {
+        throw new Error(`${payload.name.trim()} costs ${points} points, but only ${appState.remaining} remain. Adjust their stats or raise the warband limit.`);
+      }
+      return points;
+    }
+
+    function renderRoster() {
+      document.querySelector("#roster-title").textContent = appState.name;
+      warbandNameInput.value = appState.name;
+      document.querySelector("#points-used").textContent = appState.points_used;
+      document.querySelector("#budget-total").textContent = appState.budget;
+      document.querySelector("#points-remaining").textContent = `${appState.remaining} available`;
+      document.querySelector("#points-remaining").classList.toggle("over", appState.remaining < 0);
+      budgetSelect.value = String(appState.budget);
+
+      const ratio = Math.min(100, (appState.points_used / appState.budget) * 100);
+      document.querySelector("#progress-fill").style.width = `${ratio}%`;
+      const progress = document.querySelector("#budget-progress");
+      progress.setAttribute("aria-valuemax", String(appState.budget));
+      progress.setAttribute("aria-valuenow", String(appState.points_used));
+
+      const roster = document.querySelector("#roster-list");
+      roster.replaceChildren();
+      if (appState.characters.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty-roster";
+        const mark = document.createElement("span");
+        mark.className = "empty-mark";
+        mark.setAttribute("aria-hidden", "true");
+        mark.textContent = "◇";
+        empty.append(mark, "Your crew is waiting to be forged.");
+        roster.append(empty);
+      }
+
+      for (const character of appState.characters) {
+        const card = document.createElement("article");
+        card.className = "character-card";
+        const layout = document.createElement("div");
+        layout.className = "character-layout";
+        const photo = document.createElement("div");
+        photo.className = "character-photo";
+        const image = document.createElement("img");
+        image.src = character.photo || makeDefaultPortrait(character.classes[0]);
+        image.alt = `${character.name}, ${character.classes.join(" and ")} class portrait`;
+        if (!character.photo) image.className = "default-portrait";
+        photo.append(image);
+        const content = document.createElement("div");
+        content.className = "character-content";
+        const top = document.createElement("div");
+        top.className = "character-top";
+        const identity = document.createElement("div");
+        const name = document.createElement("h3");
+        name.className = "character-name";
+        name.textContent = character.name;
+        const className = document.createElement("div");
+        className.className = "character-class";
+        className.textContent = `${character.role === "Powerful" ? "Powerful / large" : character.role} · ${character.classes.join(", ")}${character.leader_trait ? ` · ${character.leader_trait}` : ""}`;
+        identity.append(name, className);
+        const points = document.createElement("strong");
+        points.className = "character-points";
+        points.textContent = `${character.points} pts`;
+        top.append(identity, points);
+        const stats = document.createElement("div");
+        stats.className = "character-stats";
+        for (const [key, label] of Object.entries(statNames)) {
+          const chip = document.createElement("span");
+          chip.className = "stat-chip";
+          chip.textContent = `${label} ${character.stats[key]}`;
+          stats.append(chip);
+        }
+        if (character.weapons.length) {
+          const weapons = document.createElement("div");
+          weapons.className = "character-class";
+          weapons.textContent = `Weapons: ${character.weapons.join(", ")}`;
+          weapons.style.marginTop = "8px";
+          stats.append(weapons);
+        }
+        const remove = document.createElement("button");
+        remove.className = "remove-button";
+        remove.type = "button";
+        remove.textContent = "Remove fighter";
+        remove.setAttribute("aria-label", `Remove ${character.name}`);
+        remove.addEventListener("click", () => {
+          clearError();
+          if (character.role === "Leader" && appState.characters.length > 1) {
+            showError("A warband must keep its leader while other models remain. Remove the other models first.");
+            return;
+          }
+          appState.characters = appState.characters.filter((item) => item.id !== character.id);
+          updateDerivedState();
+          renderClasses();
+          renderRoster();
+          renderSavedWarbands();
+        });
+        const actions = document.createElement("div");
+        actions.className = "character-actions screen-only";
+        const photoLabel = document.createElement("label");
+        photoLabel.className = "photo-button";
+        photoLabel.textContent = character.photo ? "Change photo" : "Add photo";
+        const photoInput = document.createElement("input");
+        photoInput.className = "photo-input";
+        photoInput.type = "file";
+        photoInput.accept = "image/jpeg,image/png,image/webp";
+        photoInput.setAttribute("aria-label", `Upload photo for ${character.name}`);
+        photoInput.addEventListener("change", async () => {
+          const [file] = photoInput.files || [];
+          if (!file) return;
+          clearError();
+          try {
+            character.photo = await makePhotoDataUrl(file);
+            renderRoster();
+          } catch (error) {
+            showError(error.message);
+            photoInput.value = "";
+          }
+        });
+        photoLabel.append(photoInput);
+        actions.append(photoLabel, remove);
+        content.append(top, stats, actions);
+        layout.append(photo, content);
+        card.append(layout);
+        roster.append(card);
+      }
+      updateCostPreview();
+    }
+
+    const portraitPalettes = {
+      Acrobat: ["#bd8359", "#f5d6a5", "#573c50", "#edbc87"],
+      Alchemist: ["#4fa99b", "#d4f1cb", "#255658", "#d9ad7b"],
+      Archer: ["#8da957", "#d8d79b", "#394a3b", "#d8aa7b"],
+      Assassin: ["#a84f56", "#f4c18c", "#432c42", "#c99377"],
+      Barbarian: ["#c36d49", "#f0c58a", "#633d37", "#a96f51"],
+      Beast: ["#77a85c", "#e0d19a", "#344c3a", "#b8a47a"],
+      Berserker: ["#d04f40", "#f2c38b", "#522e35", "#cd936e"],
+      Cavalry: ["#6e9aaf", "#e0d5a4", "#344b62", "#d4a47b"],
+      Commander: ["#c39b54", "#f0dfab", "#514452", "#d6a881"],
+      Druid: ["#5d9b69", "#dce6a0", "#354a3c", "#d2a27c"],
+      Fighter: ["#a96b4e", "#efc88e", "#503c3b", "#d5a17c"],
+      Flyer: ["#62aab1", "#e5e9c2", "#365366", "#d7aa82"],
+      Fool: ["#c46c91", "#f5d2b1", "#533d68", "#e2b08d"],
+      Healer: ["#d4b96e", "#f4edcf", "#4d6658", "#deb38c"],
+      Hunter: ["#87985b", "#e4d59e", "#434637", "#d5a17a"],
+      Knight: ["#8c9dad", "#f1dca8", "#374450", "#ddb58f"],
+      "Magic User": ["#9578c7", "#e8d2ff", "#40345f", "#d7a982"],
+      "Magical Beast": ["#b477c1", "#e7d4b3", "#493657", "#b89578"],
+      "Martial Artist": ["#d29a55", "#f4dbab", "#49453e", "#d8a47c"],
+      Monster: ["#b05a55", "#e9c88d", "#46343b", "#a78c72"],
+      Necromancer: ["#7581a5", "#d4d8c8", "#35394d", "#c69e80"],
+      "Pit Fighter": ["#c47750", "#f0c58d", "#514039", "#d7a27b"],
+      Spy: ["#708d9d", "#d9d8bd", "#33454b", "#d0a27d"],
+      "Spell Sword": ["#6f91bd", "#eee0b0", "#3b4564", "#d7a57f"],
+      Swashbuckler: ["#bd6f55", "#f5d59b", "#523b4a", "#e2ad87"],
+      Thief: ["#827c58", "#ded3a0", "#3d4038", "#c99675"],
+      Wretch: ["#9a815f", "#d6c39a", "#423e38", "#b98e70"],
+    };
+
+    const portraitFeatures = {
+      Acrobat: "hood",
+      Alchemist: "goggles",
+      Archer: "hood",
+      Assassin: "mask",
+      Barbarian: "hair",
+      Beast: "beast",
+      Berserker: "hair",
+      Cavalry: "helm",
+      Commander: "crown",
+      Druid: "hood",
+      Fighter: "hair",
+      Flyer: "wings",
+      Fool: "mask",
+      Healer: "hood",
+      Hunter: "hood",
+      Knight: "helm",
+      "Magic User": "hood",
+      "Magical Beast": "beast",
+      "Martial Artist": "topknot",
+      Monster: "beast",
+      Necromancer: "hood",
+      "Pit Fighter": "helm",
+      Spy: "mask",
+      "Spell Sword": "hood",
+      Swashbuckler: "hat",
+      Thief: "hood",
+      Wretch: "hair",
+    };
+
+    function makeDefaultPortrait(className) {
+      const palette = portraitPalettes[className] || portraitPalettes.Fighter;
+      const [accent, light, dark, skin] = palette;
+      const feature = portraitFeatures[className] || "hair";
+      const slug = className.replace(/[^a-z0-9]/gi, "");
+      const hash = [...className].reduce((value, character) => (value * 31 + character.charCodeAt(0)) >>> 0, 7);
+      const flecks = Array.from({ length: 9 }, (_, index) => {
+        const x = 14 + ((hash >>> (index % 16)) + index * 29) % 132;
+        const y = 12 + ((hash >>> ((index + 5) % 16)) + index * 17) % 118;
+        const radius = index % 3 === 0 ? 1.5 : 1;
+        return `<circle cx="${x}" cy="${y}" r="${radius}" fill="${light}" opacity=".36"/>`;
+      }).join("");
+      const headwear = {
+        hood: `<path d="M37 69 Q34 30 80 25 Q126 30 123 71 L111 104 L100 74 Q80 61 60 74 L49 104Z" fill="${dark}" stroke="${accent}" stroke-width="3"/><path d="M48 66 Q52 43 80 42 Q108 43 112 66 Q99 58 80 61 Q61 58 48 66Z" fill="${accent}"/>`,
+        helm: `<path d="M43 69 Q40 34 80 32 Q120 34 117 69 L108 87 L52 87Z" fill="${light}" stroke="${accent}" stroke-width="4"/><path d="M51 67 Q80 57 109 67 L104 77 Q80 72 56 77Z" fill="${dark}"/><path d="M80 34 L80 64" stroke="${accent}" stroke-width="4"/>`,
+        goggles: `<path d="M48 53 Q80 34 112 53 L105 68 L55 68Z" fill="${dark}" stroke="${accent}" stroke-width="4"/><circle cx="65" cy="61" r="9" fill="${light}" stroke="${accent}" stroke-width="3"/><circle cx="95" cy="61" r="9" fill="${light}" stroke="${accent}" stroke-width="3"/>`,
+        mask: `<path d="M48 61 Q80 43 112 61 L107 79 Q80 94 53 79Z" fill="${dark}" stroke="${accent}" stroke-width="3"/><path d="M60 64 L72 66 M88 66 L100 64" stroke="${light}" stroke-width="4" stroke-linecap="round"/>`,
+        crown: `<path d="M48 55 L55 35 L70 49 L80 29 L91 49 L106 35 L112 58Z" fill="${accent}" stroke="${light}" stroke-width="3"/>`,
+        hat: `<path d="M43 57 Q52 45 63 47 L68 27 Q95 22 107 49 Q120 50 122 58 Q84 69 43 57Z" fill="${dark}" stroke="${accent}" stroke-width="3"/><path d="M66 31 L104 48" stroke="${light}" stroke-width="3"/>`,
+        beast: `<path d="M55 49 Q41 28 39 15 Q61 24 68 42 M105 49 Q119 28 121 15 Q99 24 92 42" fill="${light}" stroke="${accent}" stroke-width="4" stroke-linejoin="round"/><path d="M45 61 L31 50 L42 80 M115 61 L129 50 L118 80" fill="${skin}" stroke="${accent}" stroke-width="3"/>`,
+        wings: `<path d="M54 82 Q25 60 25 36 Q49 42 65 67 M106 82 Q135 60 135 36 Q111 42 95 67" fill="${light}" stroke="${accent}" stroke-width="3"/><path d="M38 47 L57 70 M122 47 L103 70" stroke="${accent}" stroke-width="2"/>`,
+        topknot: `<path d="M73 40 Q62 19 80 10 Q101 22 87 43Z" fill="${dark}" stroke="${accent}" stroke-width="3"/>`,
+        hair: `<path d="M45 63 Q39 34 62 32 Q82 18 98 33 Q121 38 114 66 Q101 52 89 51 Q68 60 45 63Z" fill="${dark}" stroke="${accent}" stroke-width="3"/>`,
+      }[feature];
+      const face = feature === "helm"
+        ? `<path d="M54 72 Q80 67 106 72 L101 101 Q92 116 80 116 Q68 116 59 101Z" fill="${skin}" stroke="${dark}" stroke-width="3"/><path d="M68 89 L76 89 M84 89 L92 89" stroke="${dark}" stroke-width="3" stroke-linecap="round"/>`
+        : `<ellipse cx="80" cy="77" rx="28" ry="36" fill="${skin}" stroke="${dark}" stroke-width="3"/><path d="M66 77 Q72 73 77 77 M84 77 Q89 73 95 77" fill="none" stroke="${dark}" stroke-width="3" stroke-linecap="round"/><path d="M80 78 L77 91 L83 92 M71 101 Q80 106 89 101" fill="none" stroke="${dark}" stroke-width="2.5" stroke-linecap="round"/>`;
+      const beard = ["hair", "topknot", "beast"].includes(feature)
+        ? `<path d="M59 96 Q80 109 101 96 L97 111 Q80 130 63 111Z" fill="${dark}" opacity=".92"/>`
+        : "";
+      const monogram = className.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+        <defs>
+          <linearGradient id="bg${slug}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${dark}"/><stop offset="1" stop-color="#172522"/></linearGradient>
+          <radialGradient id="glow${slug}"><stop stop-color="${accent}" stop-opacity=".7"/><stop offset="1" stop-color="${accent}" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="160" height="160" fill="url(#bg${slug})"/>
+        <circle cx="80" cy="70" r="70" fill="url(#glow${slug})"/>
+        ${flecks}
+        <circle cx="80" cy="76" r="50" fill="none" stroke="${light}" stroke-opacity=".22" stroke-width="2"/>
+        <path d="M8 160 Q13 118 46 112 L61 103 L99 103 L114 112 Q147 118 152 160Z" fill="${dark}" stroke="${accent}" stroke-width="4"/>
+        <path d="M54 111 L80 132 L106 111 L115 160 L45 160Z" fill="${accent}" opacity=".88"/>
+        <path d="M69 101 L91 101 L97 117 L80 132 L63 117Z" fill="${skin}" stroke="${dark}" stroke-width="3"/>
+        ${headwear}
+        ${face}
+        ${beard}
+        <path d="M44 145 L62 126 M116 145 L98 126" stroke="${light}" stroke-opacity=".72" stroke-width="3"/>
+        <circle cx="128" cy="31" r="18" fill="${dark}" stroke="${light}" stroke-width="2"/>
+        <text x="128" y="36" text-anchor="middle" fill="${light}" font-family="Georgia,serif" font-size="13" font-weight="bold">${monogram}</text>
+        <path d="M10 150 H150" stroke="${light}" stroke-opacity=".45" stroke-width="2"/>
+      </svg>`;
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    }
+
+    function renderSavedWarbands() {
+      savedViewButton.textContent = `Saved warbands (${savedWarbands.length})`;
+      savedViewButton.disabled = false;
+      savedList.replaceChildren();
+      if (!savedWarbands.length) {
+        const empty = document.createElement("p");
+        empty.className = "saved-empty";
+        empty.textContent = "No saved warbands yet. Build a roster, then choose Save warband to keep it here.";
+        savedList.append(empty);
+        return;
+      }
+
+      for (const warband of savedWarbands) {
+        const card = document.createElement("article");
+        card.className = "saved-card";
+        const title = document.createElement("h2");
+        title.textContent = warband.name;
+        const summary = document.createElement("p");
+        summary.className = "saved-meta";
+        const points = warband.characters.reduce((total, character) => total + character.points, 0);
+        const date = new Date(warband.updatedAt);
+        const dateLabel = Number.isNaN(date.getTime()) ? "Saved locally" : `Updated ${date.toLocaleString()}`;
+        summary.textContent = `${warband.characters.length} fighter${warband.characters.length === 1 ? "" : "s"} · ${points} / ${warband.budget} pts · ${dateLabel}`;
+        const actions = document.createElement("div");
+        actions.className = "saved-card-actions";
+        const open = document.createElement("button");
+        open.className = "tool-button";
+        open.type = "button";
+        open.textContent = "View / edit";
+        open.addEventListener("click", () => {
+          activeSavedId = warband.id;
+          appState.name = warband.name;
+          appState.budget = warband.budget;
+          appState.characters = JSON.parse(JSON.stringify(warband.characters));
+          updateDerivedState();
+          roleSelect.value = appState.characters.some((character) => character.role === "Leader") ? "Troop" : "Leader";
+          selectedClasses = [];
+          selectedWeapons = [];
+          leaderTraitSelect.value = "";
+          document.querySelector("#character-name").value = "";
+          renderStats();
+          renderClasses();
+          renderLeaderTraits();
+          renderWeapons();
+          updateRoleDetails();
+          renderRoster();
+          refreshSaveButton();
+          showSavedMessage("");
+          savedView.hidden = true;
+          builderView.hidden = false;
+        });
+        const remove = document.createElement("button");
+        remove.className = "tool-button delete-saved-button";
+        remove.type = "button";
+        remove.textContent = "Delete";
+        remove.addEventListener("click", () => {
+          const previous = savedWarbands;
+          savedWarbands = savedWarbands.filter((item) => item.id !== warband.id);
+          if (!writeSavedWarbands()) {
+            savedWarbands = previous;
+            return;
+          }
+          if (activeSavedId === warband.id) {
+            activeSavedId = null;
+            refreshSaveButton();
+          }
+          renderSavedWarbands();
+          showSavedMessage(`Deleted “${warband.name}” from this browser.`);
+        });
+        actions.append(open, remove);
+        card.append(title, summary, actions);
+        savedList.append(card);
+      }
+    }
+
+    function openSavedWarbands() {
+      renderSavedWarbands();
+      builderView.hidden = true;
+      savedView.hidden = false;
+      showSavedMessage(savedStorageReady ? "" : "Saved warband storage is unavailable or unreadable.");
+    }
+
+    function saveCurrentWarband() {
+      clearError();
+      if (!savedStorageReady) {
+        showError("Saved data could not be read safely, so this browser's saved warbands were left unchanged.");
+        return;
+      }
+      const name = warbandNameInput.value.trim();
+      if (!name) {
+        showError("Warband name cannot be empty.");
+        return;
+      }
+      if (name.length > 60) {
+        showError("Warband names must be 60 characters or fewer.");
+        return;
+      }
+      if (!appState.characters.some((character) => character.role === "Leader")) {
+        showError("Recruit a leader before saving a warband.");
+        return;
+      }
+
+      appState.name = name;
+      const previous = savedWarbands;
+      const record = {
+        id: activeSavedId || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
+        name: appState.name,
+        budget: appState.budget,
+        characters: JSON.parse(JSON.stringify(appState.characters)),
+        updatedAt: new Date().toISOString(),
+      };
+      savedWarbands = [record, ...savedWarbands.filter((item) => item.id !== record.id)];
+      if (!writeSavedWarbands()) {
+        savedWarbands = previous;
+        return;
+      }
+      activeSavedId = record.id;
+      refreshSaveButton();
+      renderRoster();
+      renderSavedWarbands();
+      saveStatus.textContent = "Saved on this device only.";
+      saveStatus.hidden = false;
+    }
+
+    async function makePhotoDataUrl(file) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error("Choose a JPEG, PNG, or WebP photo.");
+      }
+      if (file.size > 20 * 1024 * 1024) {
+        throw new Error("Choose an image smaller than 20 MB.");
+      }
+      let bitmap;
+      try {
+        bitmap = await createImageBitmap(file);
+      } catch {
+        throw new Error("The selected file could not be opened as an image.");
+      }
+      try {
+        if (bitmap.width * bitmap.height > 40_000_000) {
+          throw new Error("Choose an image with fewer than 40 megapixels.");
+        }
+        const scale = Math.min(1, 512 / Math.max(bitmap.width, bitmap.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+        canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Your browser could not process this image.");
+        context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        const result = canvas.toDataURL("image/jpeg", 0.82);
+        if (result.length > 1_400_000) {
+          throw new Error("Processed photo is too large. Choose a smaller image.");
+        }
+        return result;
+      } finally {
+        bitmap.close();
+      }
+    }
+
+    roleSelect.addEventListener("change", () => {
+      if (currentRole() === "Troop" && selectedClasses.length > 1) {
+        selectedClasses = selectedClasses.slice(0, 1);
+        showError("Troops can have one class; the extra class selection was removed.");
+      } else {
+        clearError();
+      }
+      updateRoleDetails();
+      renderClasses();
+      renderWeapons();
+      updateCostPreview();
+    });
+
+    leaderTraitSelect.addEventListener("change", updateCostPreview);
+    leaderTraitSelect.addEventListener("change", updateRoleDetails);
+
+    addWeaponButton.addEventListener("click", () => {
+      if (!weaponSelect.value) return;
+      selectedWeapons.push(weaponSelect.value);
+      renderWeapons();
+      updateCostPreview();
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      clearError();
+      submitButton.disabled = true;
+      const stats = {};
+      for (const input of statControls.querySelectorAll("select[data-stat]")) {
+        stats[input.dataset.stat] = input.dataset.stat === "speed" ? Number(input.value) : input.value;
+      }
+      try {
+        const character = {
+          id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+          name: document.querySelector("#character-name").value.trim(),
+          role: currentRole(),
+          classes: [...selectedClasses],
+          stats,
+          weapons: [...selectedWeapons],
+          leader_trait: currentRole() === "Leader" ? leaderTraitSelect.value : "",
+          photo: null,
+        };
+        character.points = validateCharacter(character);
+        appState.characters.push(character);
+        updateDerivedState();
+        document.querySelector("#character-name").value = "";
+        if (appState.characters.some((character) => character.role === "Leader")) {
+          roleSelect.value = "Troop";
+        }
+        selectedClasses = [];
+        selectedWeapons = [];
+        leaderTraitSelect.value = "";
+        renderStats();
+        renderClasses();
+        renderWeapons();
+        updateRoleDetails();
+        renderRoster();
+        renderSavedWarbands();
+      } catch (error) {
+        showError(error.message);
+      } finally {
+        updateCostPreview();
+      }
+    });
+
+    budgetSelect.addEventListener("change", () => {
+      clearError();
+      const budget = Number(budgetSelect.value);
+      if (budget < appState.points_used) {
+        showError(`Your roster already uses ${appState.points_used} points. Remove a character before lowering the limit.`);
+        budgetSelect.value = String(appState.budget);
+        return;
+      }
+      appState.budget = budget;
+      renderRoster();
+      renderSavedWarbands();
+    });
+
+    function saveWarbandName() {
+      const name = warbandNameInput.value.trim();
+      if (!name) throw new Error("Warband name cannot be empty.");
+      if (name.length > 60) throw new Error("Warband names must be 60 characters or fewer.");
+      appState.name = name;
+      renderRoster();
+    }
+
+    warbandNameForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      clearError();
+      saveNameButton.disabled = true;
+      try {
+        saveWarbandName();
+      } catch (error) {
+        showError(error.message);
+      } finally {
+        saveNameButton.disabled = false;
+      }
+    });
+
+    saveWarbandButton.addEventListener("click", saveCurrentWarband);
+    savedViewButton.addEventListener("click", openSavedWarbands);
+    builderViewButton.addEventListener("click", () => {
+      savedView.hidden = true;
+      builderView.hidden = false;
+    });
+
+    window.addEventListener("storage", (event) => {
+      if (event.key === "warband-foundry:saved-warbands:v1") {
+        loadSavedWarbands();
+        renderSavedWarbands();
+      }
+    });
+
+    async function start() {
+      try {
+        gameRules = await request("/api/rules");
+        appState = {
+          ...gameRules,
+          name: "Untitled Warband",
+          budget: 100,
+          characters: [],
+          points_used: 0,
+          remaining: 100,
+        };
+        loadSavedWarbands();
+        renderClasses();
+        renderStats();
+        renderLeaderTraits();
+        renderWeapons();
+        renderRoster();
+        renderSavedWarbands();
+        refreshSaveButton();
+      } catch (error) {
+        showError(`Could not load game rules: ${error.message}`);
+        submitButton.disabled = true;
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>
